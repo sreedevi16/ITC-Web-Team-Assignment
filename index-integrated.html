@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finance Tracker — ITC (Full Stack)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Same styles as standalone tracker + auth screen */
+    :root {
+      --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a24;
+      --accent: #6ef0b0; --accent2: #3d8bff; --red: #f87171;
+      --text: #e8e8f0; --muted: #7a7a99; --border: rgba(255,255,255,0.07);
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+    #root { min-height: 100vh; }
+    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .sidebar-logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+    .sidebar-logo span { color: var(--accent); }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0.4rem; }
+    .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; color: var(--muted); transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: rgba(110,240,176,0.1); color: var(--accent); font-weight: 500; }
+    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-bottom { margin-top: auto; font-size: 0.8rem; color: var(--muted); }
+    .user-chip { display: flex; align-items: center; gap: 0.75rem; padding: 10px; background: var(--bg3); border-radius: 10px; margin-bottom: 0.5rem; }
+    .user-avatar { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #0a0a0f; }
+    .user-name { font-size: 0.85rem; font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; padding: 4px; transition: color 0.2s; }
+    .logout-btn:hover { color: var(--red); }
+    .main { padding: 2.5rem; overflow-y: auto; }
+    .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .main-header h1 { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    .main-header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; }
+    .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+    .summary-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; position: relative; overflow: hidden; }
+    .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .summary-card.balance::before { background: var(--accent2); }
+    .summary-card.income::before { background: var(--accent); }
+    .summary-card.expense::before { background: var(--red); }
+    .card-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; }
+    .card-amount { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+    .card-amount.pos { color: var(--accent); }
+    .card-amount.neg { color: var(--red); }
+    .card-amount.neu { color: var(--accent2); }
+    .card-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+    .add-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; }
+    .add-section h2 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.8rem; align-items: end; }
+    .field label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .field input, .field select { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+    .field input:focus, .field select:focus { border-color: var(--accent); }
+    .field select option { background: var(--bg3); }
+    .type-toggle { display: flex; gap: 0.4rem; }
+    .type-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; color: var(--muted); }
+    .type-btn.income.sel { background: rgba(110,240,176,0.15); color: var(--accent); border-color: var(--accent); }
+    .type-btn.expense.sel { background: rgba(248,113,113,0.15); color: var(--red); border-color: var(--red); }
+    .add-btn { padding: 10px 20px; background: var(--accent); color: #0a0a0f; border: none; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .add-btn:hover { background: #fff; }
+    .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .charts-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.2rem; margin-bottom: 2rem; }
+    .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .chart-card h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
+    .tx-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+    .tx-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+    .tx-header h2 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
+    .tx-count { font-size: 0.8rem; color: var(--muted); background: var(--bg3); padding: 4px 12px; border-radius: 100px; }
+    .tx-list { display: flex; flex-direction: column; gap: 0.6rem; max-height: 380px; overflow-y: auto; }
+    .tx-item { display: flex; align-items: center; gap: 1rem; padding: 12px; border-radius: 10px; background: var(--bg3); border: 1px solid transparent; transition: border-color 0.2s; }
+    .tx-item:hover { border-color: var(--border); }
+    .tx-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .tx-icon.income { background: rgba(110,240,176,0.1); }
+    .tx-icon.expense { background: rgba(248,113,113,0.1); }
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-name { font-weight: 500; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tx-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .tx-amount { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; }
+    .tx-amount.income { color: var(--accent); }
+    .tx-amount.expense { color: var(--red); }
+    .tx-del { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; transition: all 0.2s; }
+    .tx-del:hover { background: rgba(248,113,113,0.15); color: var(--red); }
+    .tx-edit { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; transition: all 0.2s; }
+    .tx-edit:hover { background: rgba(110,240,176,0.1); color: var(--accent); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.9rem; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+    .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; width: 420px; max-width: 90vw; }
+    .modal h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+    .modal-footer { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .modal-btn { flex: 1; padding: 11px; border-radius: 8px; border: none; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .modal-btn.save { background: var(--accent); color: #0a0a0f; }
+    .modal-btn.save:hover { background: #fff; }
+    .modal-btn.cancel { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+
+    /* Auth Screen */
+    .auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .auth-box { width: 400px; max-width: 100%; }
+    .auth-logo { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .auth-logo span { color: var(--accent); }
+    .auth-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: var(--bg2); padding: 4px; border-radius: 10px; }
+    .auth-tab { flex: 1; padding: 10px; border: none; background: none; color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 600; cursor: pointer; border-radius: 8px; transition: all 0.2s; font-size: 0.9rem; }
+    .auth-tab.active { background: var(--accent); color: #0a0a0f; }
+    .auth-form { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; }
+    .auth-form .field { margin-bottom: 1.2rem; }
+    .auth-submit { width: 100%; padding: 13px; background: var(--accent); color: #0a0a0f; border: none; border-radius: 8px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+    .auth-submit:hover { background: #fff; }
+    .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .api-note { margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(61,139,255,0.1); border: 1px solid rgba(61,139,255,0.2); border-radius: 8px; font-size: 0.8rem; color: var(--accent2); }
+    .error-msg { color: var(--red); font-size: 0.85rem; margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: rgba(248,113,113,0.1); border-radius: 8px; }
+    .loading { display: flex; align-items: center; justify-content: center; padding: 3rem; color: var(--muted); gap: 0.75rem; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .form-row { grid-template-columns: 1fr 1fr; }
+      .summary-cards { grid-template-columns: 1fr; }
+      .charts-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ===== CONFIG =====
+// Change this to your deployed backend URL when deploying
+const API_BASE = 'http://localhost:3001/api';
+
+const CATEGORIES = {
+  income: ['Salary','Freelance','Investment','Gift','Other Income'],
+  expense: ['Food','Transport','Rent','Shopping','Health','Education','Entertainment','Utilities','Other']
+};
+const CAT_ICONS = {
+  Salary:'💼', Freelance:'💻', Investment:'📈', Gift:'🎁', 'Other Income':'💰',
+  Food:'🍔', Transport:'🚗', Rent:'🏠', Shopping:'🛍️', Health:'❤️',
+  Education:'📚', Entertainment:'🎮', Utilities:'💡', Other:'📝'
+};
+
+// ===== API HELPERS =====
+function getToken() { return localStorage.getItem('itc-token'); }
+function setToken(t) { localStorage.setItem('itc-token', t); }
+function clearToken() { localStorage.removeItem('itc-token'); }
+
+async function apiFetch(path, options = {}) {
+  const token = getToken();
+  const res = await fetch(API_BASE + path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+// ===== CHART COMPONENTS =====
+function BarChart({ transactions }) {
+  const ref = useRef(null); const chartRef = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    const days = []; const incD = []; const expD = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate()-i);
+      const str = d.toISOString().split('T')[0];
+      days.push(d.toLocaleDateString('en',{weekday:'short'}));
+      const dayTx = transactions.filter(t=>t.date===str);
+      incD.push(dayTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
+      expD.push(dayTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
+    }
+    chartRef.current = new Chart(ref.current, {
+      type:'bar', data:{ labels:days, datasets:[
+        {label:'Income',data:incD,backgroundColor:'rgba(110,240,176,0.7)',borderRadius:6},
+        {label:'Expense',data:expD,backgroundColor:'rgba(248,113,113,0.7)',borderRadius:6}
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#7a7a99',font:{family:'DM Sans'}}}},
+        scales:{
+          x:{ticks:{color:'#7a7a99'},grid:{color:'rgba(255,255,255,0.04)'}},
+          y:{ticks:{color:'#7a7a99',callback:v=>'₹'+v.toLocaleString()},grid:{color:'rgba(255,255,255,0.04)'}}
+        }}
+    });
+  }, [transactions]);
+  return <canvas ref={ref} height={220}/>;
+}
+
+function DonutChart({ transactions }) {
+  const ref = useRef(null); const chartRef = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    const expenses = transactions.filter(t=>t.type==='expense');
+    const byCat = {};
+    expenses.forEach(t=>{ byCat[t.category]=(byCat[t.category]||0)+t.amount; });
+    const labels = Object.keys(byCat); const data = Object.values(byCat);
+    if (!labels.length) return;
+    chartRef.current = new Chart(ref.current, {
+      type:'doughnut', data:{ labels, datasets:[{data,
+        backgroundColor:['#6ef0b0','#3d8bff','#f87171','#f59e0b','#a855f7','#10b981','#f472b6','#38bdf8'],
+        borderWidth:0, hoverOffset:6}]},
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'70%',
+        plugins:{legend:{position:'bottom',labels:{color:'#7a7a99',font:{family:'DM Sans'},padding:12,boxWidth:12}}}}
+    });
+  }, [transactions]);
+  if (!transactions.filter(t=>t.type==='expense').length)
+    return <div style={{textAlign:'center',padding:'3rem',color:'var(--muted)',fontSize:'0.85rem'}}>No expense data</div>;
+  return <canvas ref={ref} height={220}/>;
+}
+
+// ===== AUTH SCREEN =====
+function AuthScreen({ onAuth }) {
+  const [tab, setTab] = useState('login');
+  const [form, setForm] = useState({ name:'', email:'', password:'' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit() {
+    setError(''); setLoading(true);
+    try {
+      const endpoint = tab === 'login' ? '/auth/login' : '/auth/register';
+      const body = tab === 'login' ? { email: form.email, password: form.password } : form;
+      const data = await apiFetch(endpoint, { method:'POST', body });
+      setToken(data.token);
+      onAuth(data.user);
+    } catch(e) { setError(e.message); }
+    finally { setLoading(false); }
+  }
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-box">
+        <div className="auth-logo">Finance<span>.</span></div>
+        <div className="auth-sub">ITC Personal Finance Tracker — Task 4 Integration</div>
+        <div className="auth-tabs">
+          <button className={`auth-tab ${tab==='login'?'active':''}`} onClick={()=>{setTab('login');setError('');}}>Login</button>
+          <button className={`auth-tab ${tab==='register'?'active':''}`} onClick={()=>{setTab('register');setError('');}}>Register</button>
+        </div>
+        <div className="auth-form">
+          {tab==='register' && (
+            <div className="field">
+              <label>Name</label>
+              <input type="text" placeholder="Your name" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/>
+            </div>
+          )}
+          <div className="field">
+            <label>Email</label>
+            <input type="email" placeholder="you@example.com" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))}/>
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input type="password" placeholder="••••••" value={form.password} onChange={e=>setForm(f=>({...f,password:e.target.value}))} onKeyDown={e=>e.key==='Enter'&&submit()}/>
+          </div>
+          {error && <div className="error-msg">{error}</div>}
+          <button className="auth-submit" onClick={submit} disabled={loading} style={{marginTop:'1rem'}}>
+            {loading ? 'Please wait...' : tab==='login' ? 'Login' : 'Create Account'}
+          </button>
+        </div>
+        <div className="api-note">
+          ℹ️ This version connects to the Node.js + Express + SQLite backend (server.js). Start the server with <code>npm start</code> on port 3001.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== MAIN APP =====
+function App() {
+  const [user, setUser] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ type:'expense', amount:'', category:'Food', description:'', date: new Date().toISOString().split('T')[0] });
+  const [editTx, setEditTx] = useState(null);
+  const [view, setView] = useState('dashboard');
+  const [saving, setSaving] = useState(false);
+
+  // Check for stored token on mount
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      try {
+        // Decode token to get user info (not verifying, server does that)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 > Date.now()) {
+          setUser({ id: payload.id, name: payload.name, email: payload.email });
+        } else { clearToken(); }
+      } catch { clearToken(); }
+    }
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [txData, sumData] = await Promise.all([
+        apiFetch('/transactions'),
+        apiFetch('/summary')
+      ]);
+      setTransactions(txData.transactions);
+      setSummary(sumData);
+    } catch(e) {
+      if (e.message.includes('Unauthorized')) { clearToken(); setUser(null); }
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { if (user) fetchData(); }, [user, fetchData]);
+
+  async function addTransaction() {
+    if (!form.amount || !form.description) return;
+    setSaving(true);
+    try {
+      await apiFetch('/transactions', { method:'POST', body: { ...form, amount: parseFloat(form.amount) } });
+      setForm(f => ({ ...f, amount:'', description:'' }));
+      await fetchData();
+    } catch(e) { alert(e.message); }
+    finally { setSaving(false); }
+  }
+
+  async function deleteTransaction(id) {
+    if (!confirm('Delete this transaction?')) return;
+    try {
+      await apiFetch(`/transactions/${id}`, { method:'DELETE' });
+      await fetchData();
+    } catch(e) { alert(e.message); }
+  }
+
+  async function saveEdit() {
+    try {
+      await apiFetch(`/transactions/${editTx.id}`, { method:'PUT', body: editTx });
+      setEditTx(null);
+      await fetchData();
+    } catch(e) { alert(e.message); }
+  }
+
+  function logout() { clearToken(); setUser(null); setTransactions([]); setSummary(null); }
+
+  if (!user) return <AuthScreen onAuth={setUser}/>;
+
+  const fmt = n => '₹' + (n||0).toLocaleString('en-IN');
+  const bal = summary ? summary.balance : 0;
+
+  return (
+    <div className="app">
+      <aside className="sidebar">
+        <div className="sidebar-logo">Finance<span>.</span></div>
+        <nav className="sidebar-nav">
+          {[['dashboard','📊','Dashboard'],['transactions','📋','Transactions'],['analytics','📈','Analytics']].map(([id,icon,label])=>(
+            <button key={id} className={`nav-item ${view===id?'active':''}`} onClick={()=>setView(id)}>
+              <span className="icon">{icon}</span> {label}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="user-chip">
+            <div className="user-avatar">{user.name[0].toUpperCase()}</div>
+            <div className="user-name">{user.name}</div>
+            <button className="logout-btn" onClick={logout} title="Logout">✕</button>
+          </div>
+          <div>Connected to REST API</div>
+        </div>
+      </aside>
+
+      <main className="main">
+        <div className="main-header">
+          <div>
+            <h1>{view==='dashboard'?'Dashboard':view==='transactions'?'Transactions':'Analytics'}</h1>
+            <p>Welcome back, {user.name} · {new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p>
+          </div>
+          <button onClick={fetchData} style={{background:'var(--bg2)',border:'1px solid var(--border)',color:'var(--muted)',padding:'8px 16px',borderRadius:'8px',cursor:'pointer',fontSize:'0.85rem'}}>
+            ↻ Refresh
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="loading"><div className="spinner"></div> Loading from API...</div>
+        ) : (
+          <>
+            <div className="summary-cards">
+              <div className="summary-card balance">
+                <div className="card-label">Current Balance</div>
+                <div className={`card-amount ${bal>=0?'neu':'neg'}`}>{fmt(Math.abs(bal))}</div>
+                <div className="card-sub">{bal>=0?'↑ Positive':'↓ Negative'} balance</div>
+              </div>
+              <div className="summary-card income">
+                <div className="card-label">Total Income</div>
+                <div className="card-amount pos">{fmt(summary?.total_income)}</div>
+                <div className="card-sub">{transactions.filter(t=>t.type==='income').length} transactions</div>
+              </div>
+              <div className="summary-card expense">
+                <div className="card-label">Total Expenses</div>
+                <div className="card-amount neg">{fmt(summary?.total_expense)}</div>
+                <div className="card-sub">{transactions.filter(t=>t.type==='expense').length} transactions</div>
+              </div>
+            </div>
+
+            <div className="add-section">
+              <h2>Add Transaction</h2>
+              <div className="form-row">
+                <div className="field">
+                  <label>Type</label>
+                  <div className="type-toggle">
+                    <button className={`type-btn income ${form.type==='income'?'sel':''}`} onClick={()=>setForm(f=>({...f,type:'income',category:'Salary'}))}>Income</button>
+                    <button className={`type-btn expense ${form.type==='expense'?'sel':''}`} onClick={()=>setForm(f=>({...f,type:'expense',category:'Food'}))}>Expense</button>
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Amount (₹)</label>
+                  <input type="number" placeholder="0.00" value={form.amount} onChange={e=>setForm(f=>({...f,amount:e.target.value}))} min="0"/>
+                </div>
+                <div className="field">
+                  <label>Category</label>
+                  <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))}>
+                    {CATEGORIES[form.type].map(c=><option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Description</label>
+                  <input type="text" placeholder="What's this for?" value={form.description}
+                    onChange={e=>setForm(f=>({...f,description:e.target.value}))}
+                    onKeyDown={e=>e.key==='Enter'&&addTransaction()}/>
+                </div>
+                <button className="add-btn" onClick={addTransaction} disabled={saving}>{saving?'...':'+ Add'}</button>
+              </div>
+            </div>
+
+            {(view==='dashboard'||view==='analytics') && (
+              <div className="charts-row">
+                <div className="chart-card"><h3>Income vs Expenses — Last 7 Days</h3><BarChart transactions={transactions}/></div>
+                <div className="chart-card"><h3>Spending by Category</h3><DonutChart transactions={transactions}/></div>
+              </div>
+            )}
+
+            {(view==='dashboard'||view==='transactions') && (
+              <div className="tx-section">
+                <div className="tx-header">
+                  <h2>Transactions</h2>
+                  <span className="tx-count">{transactions.length} total</span>
+                </div>
+                <div className="tx-list">
+                  {transactions.length===0 && <div className="empty-state">No transactions yet. Add one above!</div>}
+                  {transactions.map(tx=>(
+                    <div className="tx-item" key={tx.id}>
+                      <div className={`tx-icon ${tx.type}`}>{CAT_ICONS[tx.category]||'💸'}</div>
+                      <div className="tx-info">
+                        <div className="tx-name">{tx.description}</div>
+                        <div className="tx-meta">{tx.category} · {tx.date}</div>
+                      </div>
+                      <div className={`tx-amount ${tx.type}`}>{tx.type==='income'?'+':'-'}{fmt(tx.amount)}</div>
+                      <button className="tx-edit" onClick={()=>setEditTx({...tx})}>✏️</button>
+                      <button className="tx-del" onClick={()=>deleteTransaction(tx.id)}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+
+      {editTx && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setEditTx(null)}>
+          <div className="modal">
+            <h3>Edit Transaction</h3>
+            {[['amount','number','Amount (₹)'],['description','text','Description'],['date','date','Date']].map(([f,t,l])=>(
+              <div className="field" key={f} style={{marginBottom:'1rem'}}>
+                <label>{l}</label>
+                <input type={t} value={editTx[f]} onChange={e=>setEditTx(tx=>({...tx,[f]:f==='amount'?parseFloat(e.target.value)||0:e.target.value}))}/>
+              </div>
+            ))}
+            <div className="field" style={{marginBottom:'1rem'}}>
+              <label>Category</label>
+              <select value={editTx.category} onChange={e=>setEditTx(tx=>({...tx,category:e.target.value}))}>
+                {CATEGORIES[editTx.type].map(c=><option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn cancel" onClick={()=>setEditTx(null)}>Cancel</button>
+              <button className="modal-btn save" onClick={saveEdit}>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

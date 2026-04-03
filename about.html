@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — ITC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root { --bg:#0a0a0f; --bg2:#111118; --bg3:#1a1a24; --accent:#6ef0b0; --accent2:#3d8bff; --text:#e8e8f0; --text-muted:#7a7a99; --border:rgba(255,255,255,0.07); --font-display:'Syne',sans-serif; --font-body:'DM Sans',sans-serif; --radius:16px; --nav-h:72px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}ul{list-style:none;}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 5vw;background:rgba(10,10,15,0.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background 0.3s;}
+.nav-logo{font-family:var(--font-display);font-size:1.6rem;font-weight:800;letter-spacing:-1px;}
+.nav-logo {
+  position: fixed;
+  top: 30px;
+  right: 20px;
+  width: 100px;
+  z-index: 1000;
+}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;gap:2.5rem;}
+.nav-links a{font-size:0.9rem;font-weight:500;color:var(--text-muted);transition:color 0.2s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--accent);transition:width 0.3s;}
+.nav-links a:hover,.nav-links a.active{color:var(--text);}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%;}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.hamburger span{display:block;width:24px;height:2px;background:var(--text);transition:all 0.3s;}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}
+.mobile-menu{display:none;position:fixed;top:var(--nav-h);left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);z-index:99;padding:1.5rem 5vw 2rem;transform:translateY(-10px);opacity:0;transition:all 0.3s;}
+.mobile-menu.open{transform:translateY(0);opacity:1;}
+.mobile-menu ul{display:flex;flex-direction:column;gap:1.2rem;}
+.mobile-menu a{font-size:1.1rem;font-weight:500;color:var(--text-muted);}
+.mobile-menu a:hover{color:var(--accent);}
+.page-header{padding:calc(var(--nav-h) + 5rem) 5vw 4rem;position:relative;overflow:hidden;}
+.page-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.section-label{font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:1rem;}
+.page-header h1{font-family:var(--font-display);font-size:clamp(2.5rem,5vw,4rem);font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:1rem;}
+.page-header p{color:var(--text-muted);font-size:1.1rem;max-width:550px;}
+.container{max-width:1100px;margin:0 auto;padding:0 5vw 6rem;}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;margin-bottom:3rem;}
+.about-text h2{font-family:var(--font-display);font-size:1.8rem;font-weight:700;margin-bottom:1rem;letter-spacing:-0.5px;}
+.about-text p{color:var(--text-muted);margin-bottom:1rem;line-height:1.8;}
+.values-list{margin-top:2rem;display:flex;flex-direction:column;gap:1rem;}
+.value-item{display:flex;align-items:flex-start;gap:1rem;padding:1.2rem;background:var(--bg2);border:1px solid var(--border);border-radius:12px;}
+.value-icon{font-size:1.4rem;flex-shrink:0;}
+.value-item h4{font-family:var(--font-display);font-weight:600;margin-bottom:0.2rem;}
+.value-item p{color:var(--text-muted);font-size:0.9rem;margin:0;}
+.footer{padding:3rem 5vw;border-top:1px solid var(--border);background:var(--bg);}
+.footer-inner{max-width:1100px;margin:0 auto;text-align:center;}
+.footer-logo{font-family:var(--font-display);font-size:1.8rem;font-weight:800;margin-bottom:0.5rem;}
+.footer-logo span{color:var(--accent);}
+.footer-inner>p{color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;}
+.footer-links{display:flex;gap:2rem;justify-content:center;}
+.footer-links a{color:var(--text-muted);font-size:0.9rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--accent);}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+@media(max-width:900px){.nav-links{display:none;}.hamburger{display:flex;}.mobile-menu{display:block;}.about-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <img src="itc image.jpeg" class="nav-logo">
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <ul>
+      <li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li>
+      <li><a href="events.html">Events</a></li><li><a href="team.html">Team</a></li><li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+
+  <div class="page-header">
+    <div class="section-label reveal">About ITC</div>
+    <h1 class="reveal">Building the tech<br>culture of tomorrow</h1>
+    <p class="reveal">We're more than a club — we're a movement that makes technology accessible, exciting, and community-driven.</p>
+  </div>
+
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text reveal">
+      
+        <p> The Institute Technical Council (ITC) at IIT Bombay is at the forefront of nurturing student innovation, technical skills, and leadership. We provide students with the resources and guidance needed to bring their ideas to life through a wide range of technical clubs, teams, and events.</p>
+      </div>
+      <div class="about-text reveal">
+        <p>With a focus on fostering collaboration and creativity, ITC plays a pivotal role in organizing technical workshops, competitions, and projects. From aeromodelling to artificial intelligence, the council caters to a diverse set of technical interests, making it a hub for student-led innovation.</p>
+      </div>
+    </div>
+   
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo"></div>
+      <p>Institute Technical Council· Tinker • Innovate • Create</p>
+      <div class="footer-links"><a href="about.html">About</a><a href="events.html">Events</a><a href="team.html">Team</a><a href="contact.html">Contact</a></div>
+    </div>
+  </footer>
+  <script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{nav.style.background=window.scrollY>50?'rgba(10,10,15,0.95)':'rgba(10,10,15,0.7)';});
+const hamburger=document.getElementById('hamburger'),mobileMenu=document.getElementById('mobileMenu');
+if(hamburger&&mobileMenu){hamburger.addEventListener('click',()=>{hamburger.classList.toggle('open');mobileMenu.classList.toggle('open');});mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{hamburger.classList.remove('open');mobileMenu.classList.remove('open');}));}
+const ro=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.parentElement.querySelectorAll('.reveal').forEach((el,i)=>setTimeout(()=>el.classList.add('visible'),i*100));e.target.classList.add('visible');ro.unobserve(e.target);}});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+  </script>
+</body>
+</html>

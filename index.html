@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ITC — Institute Technical Council</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a24;
+  --accent: #6ef0b0; --accent2: #3d8bff;
+  --text: #e8e8f0; --text-muted: #7a7a99;
+  --border: rgba(255,255,255,0.07);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --radius: 16px; --nav-h: 72px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--nav-h); display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; background: rgba(10,10,15,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); transition: background 0.3s; }
+.nav-logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: -1px; }
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 2.5rem; }
+.nav-logo {
+  position: static;
+  top: 10px;
+  right: 20px;
+  width: 100px;
+  z-index: 1000;
+}
+.nav-links a { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0.02em; transition: color 0.2s; position: relative; }
+.nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--text); transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+.mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: var(--bg2); border-bottom: 1px solid var(--border); z-index: 99; padding: 1.5rem 5vw 2rem; transform: translateY(-10px); opacity: 0; transition: all 0.3s; }
+.mobile-menu.open { transform: translateY(0); opacity: 1; }
+.mobile-menu ul { display: flex; flex-direction: column; gap: 1.2rem; }
+.mobile-menu a { font-size: 1.1rem; font-weight: 500; color: var(--text-muted); }
+.mobile-menu a:hover { color: var(--accent); }
+.hero { min-height: 100vh; display: flex; align-items: center; padding: calc(var(--nav-h) + 4rem) 5vw 4rem; position: relative; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; pointer-events: none; }
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; }
+.orb1 { width: 600px; height: 600px; background: var(--accent); top: -100px; right: -100px; animation: drift 8s ease-in-out infinite; }
+.orb2 { width: 400px; height: 400px; background: var(--accent2); bottom: 0; left: -100px; animation: drift 10s ease-in-out infinite reverse; }
+.orb3 { width: 300px; height: 300px; background: #a855f7; top: 50%; left: 40%; animation: drift 7s ease-in-out infinite 2s; }
+@keyframes drift { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(30px,-30px); } }
+.grid-overlay { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse at center, transparent 30%, black 100%); }
+.hero-content { position: relative; max-width: 750px; }
+.hero-tag { display: inline-block; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(110,240,176,0.3); padding: 6px 14px; border-radius: 100px; margin-bottom: 1.5rem; }
+.hero-title { font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 1.5rem; }
+.accent { color: var(--accent); }
+.hero-sub { font-size: 1.1rem; color: var(--text-muted); max-width: 520px; margin-bottom: 2.5rem; font-weight: 300; }
+.hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.btn-primary { display: inline-block; background: var(--accent); color: #0a0a0f; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; padding: 14px 28px; border-radius: 100px; transition: all 0.3s; }
+.btn-primary:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(110,240,176,0.3); }
+.btn-ghost { display: inline-block; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; padding: 14px 4px; transition: color 0.2s; }
+.btn-ghost:hover { color: var(--text); }
+.hero-scroll { position: absolute; bottom: 2rem; left: 5vw; display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+@keyframes scrollPulse { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
+.stats { padding: 5rem 5vw; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg2); }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; max-width: 900px; margin: 0 auto; text-align: center; }
+.stat-num { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 800; color: var(--accent); letter-spacing: -2px; }
+.stat-plus { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--accent); }
+.stat-item p { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.what { padding: 7rem 5vw; }
+.container { max-width: 1100px; margin: 0 auto; }
+.section-label { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 1rem; }
+.section-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -1px; line-height: 1.1; margin-bottom: 3.5rem; }
+.cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; transition: all 0.3s; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(110,240,176,0.03), transparent); opacity: 0; transition: opacity 0.3s; }
+.card:hover { border-color: rgba(110,240,176,0.3); transform: translateY(-4px); }
+.card:hover::before { opacity: 1; }
+.card-icon { font-size: 2rem; margin-bottom: 1rem; }
+.card h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; }
+.card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; }
+.event-teaser { padding: 6rem 5vw; background: var(--bg2); border-top: 1px solid var(--border); }
+.event-teaser .container { display: flex; align-items: center; justify-content: space-between; gap: 3rem; }
+.teaser-inner { max-width: 500px; }
+.teaser-label { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); font-weight: 500; margin-bottom: 1rem; }
+.teaser-inner h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; }
+.teaser-inner p { color: var(--text-muted); margin-bottom: 2rem; font-size: 1.05rem; }
+.teaser-deco { position: relative; width: 280px; height: 280px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.deco-ring { position: absolute; border-radius: 50%; border: 1px solid; animation: spin 20s linear infinite; }
+.r1 { width: 100%; height: 100%; border-color: rgba(110,240,176,0.15); }
+.r2 { width: 75%; height: 75%; border-color: rgba(61,139,255,0.2); animation-direction: reverse; animation-duration: 15s; }
+.r3 { width: 50%; height: 50%; border-color: rgba(110,240,176,0.3); animation-duration: 10s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.deco-text { font-family: var(--font-display); font-size: 3rem; font-weight: 800; color: var(--accent); letter-spacing: -2px; opacity: 0.6; }
+.footer { padding: 3rem 5vw; border-top: 1px solid var(--border); background: var(--bg); }
+.footer-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+.footer-logo { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+.footer-logo span { color: var(--accent); }
+.footer-inner > p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.footer-links { display: flex; gap: 2rem; justify-content: center; }
+.footer-links a { color: var(--text-muted); font-size: 0.9rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--accent); }
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@media (max-width: 900px) {
+  .nav-links { display: none; } .hamburger { display: flex; } .mobile-menu { display: block; }
+  .cards-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .event-teaser .container { flex-direction: column; } .teaser-deco { display: none; }
+}
+@media (max-width: 600px) { .hero-title { letter-spacing: -1px; } }
+  </style>
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <img src="itc image.jpeg" class="nav-logo">
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+      <div class="grid-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-tag reveal">Institute Technical Council</div>
+      <h1 class="hero-title reveal">Where <span class="accent">Technology</span><br>Meets <span class="accent">Community</span></h1>
+      <p class="hero-sub reveal">ITC is the tech heartbeat of our college — driving innovation, building skills, and connecting students with the ever-evolving world of technology.</p>
+      <div class="hero-cta reveal">
+        <a href="about.html" class="btn-primary">Discover ITC</a>
+        <a href="events.html" class="btn-ghost">View Events →</a>
+      </div>
+    </div>
+    <div class="hero-scroll"><div class="scroll-line"></div><span>Scroll</span></div>
+  </section>
+
+  
+
+  <section class="what">
+    <div class="container">
+      <div class="section-label reveal">What We Do</div>
+      <h2 class="section-title reveal">Empowering the next<br>generation of builders</h2>
+      <div class="cards-grid">
+        <div class="card reveal"><div class="card-icon">⚡</div><h3>Hackathons</h3></div>
+        <div class="card reveal"><div class="card-icon">🎓</div><h3>Workshops</h3></div>
+        <div class="card reveal"><div class="card-icon">🔗</div><h3>Networking</h3></div>
+        <div class="card reveal"><div class="card-icon">🚀</div><h3>Projects</h3></div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo"></div>
+      <p>Institute Technical Council· Tinker • Innovate • Create</p>
+      <div class="footer-links">
+        <a href="about.html">About</a><a href="events.html">Events</a><a href="team.html">Team</a><a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.style.background = window.scrollY > 50 ? 'rgba(10,10,15,0.95)' : 'rgba(10,10,15,0.7)';
+});
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+if (hamburger && mobileMenu) {
+  hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { hamburger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
+}
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const siblings = entry.target.parentElement.querySelectorAll('.reveal');
+      siblings.forEach((el, idx) => setTimeout(() => el.classList.add('visible'), idx * 100));
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  </script>
+</body>
+</html>
